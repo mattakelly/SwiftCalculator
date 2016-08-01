@@ -47,7 +47,29 @@ class ViewController: UIViewController {
         }
         displayValue = brain.result
     }
+    
+    private func resetDisplay() {
+        display.text = "0"
+        userIsInTheMiddleOfTyping =  false
+    }
  
+    @IBAction private func manipulateDisplay(sender: UIButton) {
+        let manipulation = sender.currentTitle!
+        switch manipulation {
+        case "AC" :
+            resetDisplay()
+        case "DEL" :
+            if userIsInTheMiddleOfTyping {
+                if display.text!.characters.count == 1 {
+                    resetDisplay()
+                } else {
+                    display.text!.removeAtIndex(display.text!.endIndex.predecessor())
+                }
+            }
+        default: break
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.

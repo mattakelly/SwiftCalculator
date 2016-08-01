@@ -27,6 +27,7 @@ class CalculatorBrain {
         "cos" : Operation.UnaryOperation(cos),
         "tan" : Operation.UnaryOperation(tan),
         "±": Operation.UnaryOperation({ -$0 }),
+        "∙": Operation.UnaryOperation({ $0/1.0 }),
         "×" : Operation.BinaryOperation({ $0 * $1 }),
         "÷" : Operation.BinaryOperation({ $0 / $1 }),
         "+" : Operation.BinaryOperation({ $0 + $1 }),
