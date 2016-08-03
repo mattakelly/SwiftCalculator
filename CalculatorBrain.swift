@@ -8,14 +8,12 @@
 
 import Foundation
 
-func multiply(op1: Double, op2: Double) -> Double {
-    return op1 * op2
-}
-
 class CalculatorBrain {
     private var accumulator = 0.0
+    private var history = ""
     
     func setOperand(operand: Double) {
+        history += String(operand)
         accumulator = operand
     }
     
@@ -27,7 +25,6 @@ class CalculatorBrain {
         "cos" : Operation.UnaryOperation(cos),
         "tan" : Operation.UnaryOperation(tan),
         "±": Operation.UnaryOperation({ -$0 }),
-        "∙": Operation.UnaryOperation({ $0/1.0 }),
         "×" : Operation.BinaryOperation({ $0 * $1 }),
         "÷" : Operation.BinaryOperation({ $0 / $1 }),
         "+" : Operation.BinaryOperation({ $0 + $1 }),
@@ -44,6 +41,7 @@ class CalculatorBrain {
     
     func performOperation(symbol: String) {
         if let operation = operations[symbol] {
+            history += symbol
             switch operation {
             case .Constant(let value):
                 accumulator = value
@@ -54,6 +52,7 @@ class CalculatorBrain {
                 pending = PendingBinaryOperationInfo(binaryFunction: function, firstOperand: accumulator)
             case .Equals:
                 executePendingBinaryOperation()
+                print(description)
             }
         }
     }
@@ -70,12 +69,17 @@ class CalculatorBrain {
     struct PendingBinaryOperationInfo {
         var binaryFunction: (Double, Double) -> Double
         var firstOperand: Double
-        
     }
     
     var result: Double {
         get {
             return accumulator
+        }
+    }
+    
+    var description: String {
+        get {
+            return history
         }
     }
 }

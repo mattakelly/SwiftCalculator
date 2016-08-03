@@ -11,8 +11,10 @@ import UIKit
 class ViewController: UIViewController {
     
     @IBOutlet weak var display: UILabel!
+    @IBOutlet weak var displayHistory: UILabel!
     
     var userIsInTheMiddleOfTyping = false
+    var numberInDisplayIsInt = true
     
     @IBAction private func touchDigit(sender: UIButton) {
         let digit = sender.currentTitle!
@@ -21,8 +23,8 @@ class ViewController: UIViewController {
                 display.text = textCurrentlyInDisplay + digit
             } else {
                 display.text = digit
+                userIsInTheMiddleOfTyping = true
             }
-            userIsInTheMiddleOfTyping = true
     }
     
     private var displayValue: Double  {
@@ -41,16 +43,20 @@ class ViewController: UIViewController {
         if userIsInTheMiddleOfTyping {
             brain.setOperand(displayValue)
             userIsInTheMiddleOfTyping = false
+            numberInDisplayIsInt = true
         }
         if let mathematicalSymbol = sender.currentTitle {
             brain.performOperation(mathematicalSymbol)
         }
+        displayHistory.text! = brain.description
         displayValue = brain.result
     }
     
     private func resetDisplay() {
         display.text = "0"
+        displayHistory.text = " "
         userIsInTheMiddleOfTyping =  false
+        numberInDisplayIsInt = true
     }
  
     @IBAction private func manipulateDisplay(sender: UIButton) {
@@ -65,6 +71,15 @@ class ViewController: UIViewController {
                 } else {
                     display.text!.removeAtIndex(display.text!.endIndex.predecessor())
                 }
+            }
+        case "D" :
+            if numberInDisplayIsInt {
+                if userIsInTheMiddleOfTyping == false {
+                    display.text = "0"
+                    userIsInTheMiddleOfTyping = true
+                }
+                display.text = display.text! + "."
+                numberInDisplayIsInt = false
             }
         default: break
         }
