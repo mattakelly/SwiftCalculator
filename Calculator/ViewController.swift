@@ -10,23 +10,10 @@ import UIKit
 
 class ViewController: UIViewController {
     
-    @IBOutlet weak var display: UILabel!
-    @IBOutlet weak var displayHistory: UILabel!
-    
+    // Display-related functions and variables
+    @IBOutlet weak var display: UILabel! // Entered digits/result
+    @IBOutlet weak var displayHistory: UILabel! // History of entered numbers and commands
     var userIsInTheMiddleOfTyping = false
-    var numberInDisplayIsInt = true
-    
-    @IBAction private func touchDigit(sender: UIButton) {
-        let digit = sender.currentTitle!
-            if userIsInTheMiddleOfTyping {
-                let textCurrentlyInDisplay = display.text!
-                display.text = textCurrentlyInDisplay + digit
-            } else {
-                display.text = digit
-                userIsInTheMiddleOfTyping = true
-            }
-    }
-    
     private var displayValue: Double  {
         get {
             return Double(display.text!)!
@@ -36,29 +23,31 @@ class ViewController: UIViewController {
         }
     }
     
-    private var brain = CalculatorBrain()
-    
-    
-    @IBAction private func performOperation(sender: UIButton) {
-        if userIsInTheMiddleOfTyping {
-            brain.setOperand(displayValue)
-            userIsInTheMiddleOfTyping = false
-            numberInDisplayIsInt = true
-        }
-        if let mathematicalSymbol = sender.currentTitle {
-            brain.performOperation(mathematicalSymbol)
-        }
-        displayHistory.text! = brain.description
-        displayValue = brain.result
-    }
-    
+    // Resets calculator to initial state
     private func resetDisplay() {
         display.text = "0"
         displayHistory.text = " "
         userIsInTheMiddleOfTyping =  false
-        numberInDisplayIsInt = true
+        brain.reset()
     }
- 
+    
+    // Update the display when the user presses a digit
+    @IBAction private func touchDigit(sender: UIButton) {
+        let digit = sender.currentTitle!
+        
+        if userIsInTheMiddleOfTyping {
+            // Add more digits to display, decimal point iff there is none present
+            if digit != "." || display.text!.rangeOfString(".") == nil {
+                display.text = display.text! + digit
+            }
+        } else {
+            // Add the first digit or decimal point to the display
+            display.text = (digit == "." ? "0." : digit)
+            userIsInTheMiddleOfTyping = true
+        }
+    }
+    
+    // Update the display when the user wants to delete/clear display/etc???
     @IBAction private func manipulateDisplay(sender: UIButton) {
         let manipulation = sender.currentTitle!
         switch manipulation {
@@ -72,19 +61,28 @@ class ViewController: UIViewController {
                     display.text!.removeAtIndex(display.text!.endIndex.predecessor())
                 }
             }
-        case "D" :
-            if numberInDisplayIsInt {
-                if userIsInTheMiddleOfTyping == false {
-                    display.text = "0"
-                    userIsInTheMiddleOfTyping = true
-                }
-                display.text = display.text! + "."
-                numberInDisplayIsInt = false
-            }
         default: break
         }
     }
     
+
+    // Send requested operations to the brain
+    private var brain = CalculatorBrain()
+    
+    // TODO: TRACK WHETHER TO RESET HISTORY IF USER TYPED OPERAND!!!
+    @IBAction private func performOperation(sender: UIButton) {
+        if userIsInTheMiddleOfTyping {
+            brain.setOperand(displayValue)
+            userIsInTheMiddleOfTyping = false
+        }
+        if let mathematicalSymbol = sender.currentTitle {
+            brain.performOperation(mathematicalSymbol)
+        }
+        displayHistory.text! = brain.description
+        displayValue = brain.result
+    }
+    
+    // XCode stuff
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.

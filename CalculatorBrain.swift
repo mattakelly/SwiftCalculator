@@ -10,11 +10,16 @@ import Foundation
 
 class CalculatorBrain {
     private var accumulator = 0.0
-    private var history = ""
+    private var history: [String] = []
     
     func setOperand(operand: Double) {
-        history += String(operand)
+        history.append(String(operand))
         accumulator = operand
+    }
+    
+    func reset() {
+        accumulator = 0.0
+        history = []
     }
     
     var operations: Dictionary<String, Operation> = [
@@ -41,7 +46,10 @@ class CalculatorBrain {
     
     func performOperation(symbol: String) {
         if let operation = operations[symbol] {
-            history += symbol
+            if symbol != "=" {
+                history.append(symbol)
+            }
+            
             switch operation {
             case .Constant(let value):
                 accumulator = value
@@ -52,7 +60,6 @@ class CalculatorBrain {
                 pending = PendingBinaryOperationInfo(binaryFunction: function, firstOperand: accumulator)
             case .Equals:
                 executePendingBinaryOperation()
-                print(description)
             }
         }
     }
@@ -61,10 +68,22 @@ class CalculatorBrain {
         if pending != nil {
             accumulator = pending!.binaryFunction(pending!.firstOperand, accumulator)
             pending = nil
+            isPartialResult = false
+        }
+        else {
+            // TODO: THIS IS BROKEN!
+            var firstElement = "0.0"
+            if history.count >= 2 {
+                firstElement = history[history.count-2]
+            }
+            history = [firstElement, history[history.count-1]]
+            isPartialResult = true
         }
     }
     
+    
     private var pending: PendingBinaryOperationInfo?
+    private var isPartialResult = false
     
     struct PendingBinaryOperationInfo {
         var binaryFunction: (Double, Double) -> Double
@@ -79,7 +98,17 @@ class CalculatorBrain {
     
     var description: String {
         get {
-            return history
+            var historyString = ""
+            for element in history {
+                historyString += element
+            }
+            if isPartialResult {
+                historyString += "..."
+            }
+            else {
+                historyString += "="
+            }
+            return historyString
         }
     }
 }
