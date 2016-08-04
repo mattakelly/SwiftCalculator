@@ -24,7 +24,7 @@ class CalculatorBrain {
             for element in history {
                 historyString += element
             }
-            if isPartialResult {
+            if isPartialResult == true {
                 historyString += "..."
             }
             else {
@@ -55,14 +55,17 @@ class CalculatorBrain {
         if let operation = operations[symbol] {
             switch operation {
             case .Constant(let value):
+                if pending == nil {
+                    history = []
+                }
                 accumulator = value
                 history.append(symbol)
                 userOperand = true
+                isPartialResult = false
             case .UnaryOperation(let function):
                 accumulator = function(accumulator)
                 if userOperand == true && pending == nil {
                     history = [history.last!]
-                    print("clearing")
                 }
                 userOperand = false
                 if pending == nil {
