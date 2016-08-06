@@ -37,22 +37,25 @@ class CalculatorBrain {
     // Resets the calculator brain to initial state
     func reset() {
         accumulator = 0.0
-        history = []
+        history.removeAll()
         isPartialResult = false
         pending = nil
         userOperand = false
+        internalProgram.removeAll()
     }
     
     // Sends the on-screen value to the accumulator
     func setOperand(operand: Double) {
         history.append(String(operand))
         accumulator = operand
+        internalProgram.append(operand)
         userOperand = true
     }
 
     // Performs a mathematical operation
     func performOperation(symbol: String) {
         if let operation = operations[symbol] {
+            internalProgram.append(symbol)
             switch operation {
             case .Constant(let value):
                 if pending == nil {
@@ -93,10 +96,30 @@ class CalculatorBrain {
         }
     }
     
+    typealias PropertyList = AnyObject
+    var program: PropertyList {
+        get {
+            return internalProgram
+        }
+        set {
+            reset()
+            if let arrayOfOps = newValue as? [AnyObject] {
+                for op in arrayOfOps {
+                    if let operand = op as? Double {
+                        setOperand(operand)
+                    } else if let operation = op as? String {
+                        performOperation(operation)
+                    }
+                }
+            }
+        }
+    }
+    
     // PRIVATE
     private var accumulator = 0.0
     private var history: [String] = []
     private var userOperand = false
+    private var internalProgram = [AnyObject]()
     
     // Supported Operations
     private enum Operation {
