@@ -37,11 +37,12 @@ class CalculatorBrain {
     // Resets the calculator brain to initial state
     func reset() {
         accumulator = 0.0
-        history.removeAll()
         isPartialResult = false
         pending = nil
         userOperand = false
         internalProgram.removeAll()
+        history.removeAll()
+        variableValues.removeAll()
     }
     
     // Sends the on-screen value to the accumulator
@@ -55,7 +56,10 @@ class CalculatorBrain {
     // Stores a variable's value to the dictionary
     func setOperand(variableName: String) {
         if let value = variableValues[variableName] {
-            setOperand(value)
+            history.append(variableName)
+            accumulator = value
+            internalProgram.append(value)
+            userOperand = true
         }
     }
 
@@ -120,6 +124,7 @@ class CalculatorBrain {
             if let arrayOfOps = newValue as? [AnyObject] {
                 for op in arrayOfOps {
                     // TODO: IF OP IS STRING AND IN DICTIONARY...
+                    
                     if let operand = op as? Double {
                         setOperand(operand)
                     } else if let operation = op as? String {
@@ -161,7 +166,7 @@ class CalculatorBrain {
     ]
     
     // Variable Storage
-    private var variableValues = [String: Double]()
+    var variableValues = [String: Double]()
 
     // Execute the binary operation if it is in progress
     private func executePendingBinaryOperation() {

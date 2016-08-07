@@ -46,6 +46,25 @@ class ViewController: UIViewController {
             userIsInTheMiddleOfTyping = true
         }
     }
+
+    @IBAction func touchVariable(sender: UIButton) {
+        if let variable = sender.currentTitle {
+            brain.setOperand(variable)
+            displayValue = brain.variableValues[variable]!
+            userIsInTheMiddleOfTyping = false
+        }
+    }
+    
+    @IBAction func storeVariable(sender: UIButton) {
+        if let variable = sender.currentTitle {
+            // Strip out "→" and store the variable/value in the dictionary
+            let varCharString = variable.stringByReplacingOccurrencesOfString("→", withString: "")
+            brain.variableValues[varCharString] = displayValue
+            userIsInTheMiddleOfTyping = false
+        }
+    }
+    
+    
     
     // Update the display when the user wants to delete/clear display/etc???
     @IBAction private func manipulateDisplay(sender: UIButton) {
