@@ -69,7 +69,7 @@ class ViewController: UIViewController {
     // Send requested operations to the brain
     private var brain = CalculatorBrain()
     
-    // TODO: TRACK WHETHER TO RESET HISTORY IF USER TYPED OPERAND!!!
+    // Performs the requested operation
     @IBAction private func performOperation(sender: UIButton) {
         if userIsInTheMiddleOfTyping {
             brain.setOperand(displayValue)

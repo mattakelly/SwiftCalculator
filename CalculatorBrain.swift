@@ -51,11 +51,19 @@ class CalculatorBrain {
         internalProgram.append(operand)
         userOperand = true
     }
+    
+    // Stores a variable's value to the dictionary
+    func setOperand(variableName: String) {
+        if let value = variableValues[variableName] {
+            setOperand(value)
+        }
+    }
 
     // Performs a mathematical operation
     func performOperation(symbol: String) {
         if let operation = operations[symbol] {
             internalProgram.append(symbol)
+            
             switch operation {
             case .Constant(let value):
                 if pending == nil {
@@ -64,9 +72,13 @@ class CalculatorBrain {
                 accumulator = value
                 history.append(symbol)
                 userOperand = true
-                isPartialResult = false
+                isPartialResult = true
+                
             case .UnaryOperation(let function):
                 accumulator = function(accumulator)
+                if history.count == 0 {
+                    history.append("0.0")
+                }
                 if userOperand == true && pending == nil {
                     history = [history.last!]
                 }
@@ -79,6 +91,7 @@ class CalculatorBrain {
                 }
                 history.append(")")
                 isPartialResult = false
+                
             case .BinaryOperation(let function):
                 if userOperand == true && pending == nil {
                     history = [history.last!]
@@ -88,6 +101,7 @@ class CalculatorBrain {
                 history.append(symbol)
                 isPartialResult = true
                 userOperand = false
+                
             case .Equals:
                 executePendingBinaryOperation()
                 isPartialResult = false
@@ -105,6 +119,7 @@ class CalculatorBrain {
             reset()
             if let arrayOfOps = newValue as? [AnyObject] {
                 for op in arrayOfOps {
+                    // TODO: IF OP IS STRING AND IN DICTIONARY...
                     if let operand = op as? Double {
                         setOperand(operand)
                     } else if let operation = op as? String {
@@ -130,7 +145,7 @@ class CalculatorBrain {
     }
     
     // Operation Implementations
-    private var operations: Dictionary<String, Operation> = [
+    private var operations: [String: Operation] = [
         "π" : Operation.Constant(M_PI),
         "e" : Operation.Constant(M_E),
         "√" : Operation.UnaryOperation(sqrt),
@@ -144,6 +159,9 @@ class CalculatorBrain {
         "-" : Operation.BinaryOperation({ $0 - $1 }),
         "=" : Operation.Equals
     ]
+    
+    // Variable Storage
+    private var variableValues = [String: Double]()
 
     // Execute the binary operation if it is in progress
     private func executePendingBinaryOperation() {
